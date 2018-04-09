@@ -3,6 +3,11 @@ import socket
 import time
 import os
 import sys
+import random
+from Crypto.Hash import SHA256
+from Crypto.Cipher import AES
+
+
 ###############################################################################################
 def tcpConnect ( port ):
 	soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
@@ -16,7 +21,7 @@ def tcpWrite( soc, sData):
    return 
 ###############################################################################################
 def tcpRead(  soc ):
-	receivedData = soc.recv ( 16 )
+	receivedData = soc.recv ( 300 )
 	return receivedData
 ###############################################################################################
 def tcpClose(  soc ):
@@ -25,23 +30,40 @@ def tcpClose(  soc ):
 ###############################################################################################
 def main (ip, port):
 	soc = tcpConnect ( int(port) )
-	#
-        # encryption code goes here
-        # put encrypted string into
-        # soc.recv (16) - will read from the socket
-        # 16 bytes, encryption in 16 byte block
-        #
+	
+
+
+
 	while ( True ):
 	  clientSent = tcpRead( soc )
-	  print 'Server received ' + clientSent
-
-	  if 'quit' in clientSent:
+    	  if 'quit' in clientSent:
             tcpClose( soc )
 	    exit ( -1 )
-	  #
-	  # decrypt code  here 
-	  #
-	  tcpWrite( soc, clientSent.upper() )
+	  print 'Server received ' + clientSent
+  	  print "*******************************************"
+	  print "***********BREAKING DOWN DATA**************"
+	  print "*******************************************"
+	  Received_Data = clientSent.split("\x20")
+	  print "Number of Initial Bytes: ",(Received_Data[3])
+	  print "Key: ",(Received_Data[2])
+	  print "Password: ",(Received_Data[1])
+	  print "Data: ",(Received_Data[0])
+	  print len(Received_Data[0])
+	  i = int(Received_Data[3])
+	  Decryptor = AES.new(Received_Data[1], AES.MODE_CBC,Received_Data[2])
+	  encrypted_string =""
+	  encrypted_string = Received_Data[0];
+	  decrypted_string =""
+	  decrypted_string =""
+	  decrypted_string =(Decryptor.decrypt(encrypted_string))[0:i]
+	  print"*******************************************"
+	  print "**Message: ",decrypted_string
+	  print"*******************************************"
+
+	
+	 
+
+	  tcpWrite( soc, decrypted_string)
 ###############################################################################################
 ###############################################################################################
 if __name__ == "__main__":
