@@ -5,11 +5,7 @@ import sys
 import os, random
 from Crypto.Hash import SHA256
 from Crypto.Cipher import AES
-
-
-
-
-
+import MySQLdb
 
 ###############################################################################################
 def tcpConnect( ip, port ):
@@ -24,25 +20,21 @@ def tcpWrite( soc, sData):
    return 
 ###############################################################################################
 def tcpRead( soc ):
-	serverSent = soc.recv( 16 )
+	serverSent = soc.recv( 500 )
 	return  serverSent
 ###############################################################################################
 def tcpClose( soc ):
    soc.close()
    return 
 ###############################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
+def SQL_Execute(arg):
+    db = MySQLdb.connect (host = "localhost", user = "root", passwd = "root", db = "classicmodels")
+    cur = db.cursor()
+    cur.execute(arg)
+    for row in cur.fetchall():
+        print row
+    db.close()
+###############################################################################################
 
 def main ( ip, port):
 	soc = tcpConnect( ip, port )
@@ -99,7 +91,9 @@ def main ( ip, port):
 
 	  		tcpWrite ( soc, SendToServer )
 	  		sInput =  tcpRead( soc )
-        		print 'Client Received ' + sInput
+			print"SQL RESULTS: "
+			SQL_Execute(sInput)
+        		#print 'Client Received ' + sInput
 	tcpClose()
 ###############################################################################################
 ###############################################################################################
